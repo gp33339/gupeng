@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<!--
+  TokenSaver 介绍页（GitHub Pages 版）
+  =====================================
+  用途：作为 Microsoft Edge 加载项商店「官网（Website，可选）」与「隐私政策链接（必填）」的落地页。
+  本目录两个文件：
+    index.html    介绍页（入口）
+    privacy.html  独立隐私政策页（提交到商店 Privacy policy URL 用这个）
+  部署：把 index.html、privacy.html 上传到同一个 GitHub 仓库根目录，开启 Settings → Pages，
+        访问 https://<你的用户名>.github.io/<仓库名>/ 与 https://<你的用户名>.github.io/<仓库名>/privacy.html
+  口径与扩展包 v0.8.6、商店详情页文案（2026-09-28 个人主体口径）一致：一次性买断 ¥5 / ¥10 / ¥20，7 天本地 Pro 试用。
+  页面为零外部依赖单文件（无外链 CSS/JS/字体/图片），可直接静态托管。
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TokenSaver —— 粘贴前，先把 Token 省下来</title>
+<meta name="description" content="TokenSaver 是 Microsoft Edge 加载项：在你把文本粘进 AI 对话前，按内容类型做本地形态转换（表格 / JSON / 聊天记录 / 网页正文），即时显示省下的 Token。免费功能本地处理，Pro 一次性买断 ¥5 起。">
+<style>
+  :root{
+    --bg:#0b1220; --panel:#0f172a; --card:#1e293b; --line:#23324a;
+    --text:#e2e8f0; --dim:#94a3b8; --dim2:#64748b;
+    --green:#34d399; --green2:#10b981; --yellow:#fbbf24; --purple:#8b5cf6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--text);
+    font:15px/1.7 "Microsoft YaHei","Segoe UI",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--green);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  /* 顶部导航 */
+  header{position:sticky;top:0;z-index:9;background:rgba(11,18,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;gap:14px;height:62px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;color:#f1f5f9}
+  .nav nav{margin-left:auto;display:flex;gap:20px;font-size:14px}
+  .nav nav a{color:var(--dim)}
+  .nav nav a:hover{color:var(--green)}
+  .btn{
+    display:inline-block;border-radius:9px;padding:9px 16px;font-size:14px;font-weight:700;
+    cursor:pointer;border:1px solid transparent
+  }
+  .btn-green{background:var(--green2);color:#04241a}
+  .btn-green:hover{opacity:.9;text-decoration:none}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--green);color:var(--green);text-decoration:none}
+  .btn-yellow{background:var(--yellow);color:#111}
+  /* Hero */
+  .hero{padding:70px 0 54px;position:relative;overflow:hidden}
+  .hero:before{content:'';position:absolute;width:760px;height:760px;right:-260px;top:-330px;border-radius:50%;
+    background:radial-gradient(circle,rgba(52,211,153,.16),rgba(11,18,32,0) 62%)}
+  .hero h1{font-size:40px;line-height:1.25;font-weight:800;letter-spacing:.3px;color:#f1f5f9;position:relative}
+  .hero h1 em{color:var(--green);font-style:normal}
+  .hero p.lead{margin-top:18px;font-size:16.5px;color:var(--dim);max-width:660px;position:relative}
+  .cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap;position:relative}
+  .tagline{margin-top:16px;font-size:13px;color:var(--dim2);position:relative}
+  /* 通用区块 */
+  section{padding:52px 0;border-top:1px solid rgba(35,50,74,.6)}
+  h2{font-size:26px;font-weight:800;color:#f1f5f9;margin-bottom:8px}
+  .sub{color:var(--dim);margin-bottom:26px;font-size:15px}
+  h3{font-size:16.5px;color:#f1f5f9;margin-bottom:8px}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .card p{color:var(--dim);font-size:14.5px}
+  .num{font-size:30px;font-weight:800;color:var(--green);line-height:1.2}
+  .num.y{color:var(--yellow)}
+  .numlbl{font-size:13px;color:var(--dim);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:400;background:rgba(30,41,59,.5)}
+  td.price{color:var(--yellow);font-weight:800;white-space:nowrap}
+  .badge{display:inline-block;font-size:11.5px;border-radius:999px;padding:2px 9px;border:1px solid var(--line);color:var(--dim)}
+  .badge.free{border-color:var(--green);color:var(--green)}
+  .badge.pro{border-color:var(--yellow);color:var(--yellow)}
+  .note{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.45);border-radius:12px;padding:16px 18px;font-size:14px;color:#fde68a}
+  .note b{color:#fbbf24}
+  .privacy h3{margin-top:20px}
+  .privacy p{color:var(--dim);font-size:14.5px}
+  ol.plain{margin-left:20px;color:var(--dim);font-size:14.5px}
+  ol.plain li{margin:9px 0}
+  details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
+  details summary{cursor:pointer;font-weight:700;color:#f1f5f9;font-size:15px}
+  details p{color:var(--dim);font-size:14.5px;margin-top:8px}
+  footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--dim2);font-size:13px}
+  .k{display:flex;gap:10px;align-items:flex-start;margin:8px 0;color:var(--dim);font-size:14.5px}
+  .dot{width:8px;height:8px;border-radius:3px;background:var(--green);margin-top:9px;flex:none}
+  code{background:#111827;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font:13px Consolas,monospace;color:#cbd5e1}
+  @media (max-width:720px){
+    .hero h1{font-size:29px}
+    .nav nav{display:none}
+    section{padding:40px 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <span class="logo">
+      <svg width="30" height="30" viewBox="0 0 128 128" style="display:block;border-radius:7px" aria-hidden="true">
+        <rect width="128" height="128" fill="#111827"></rect>
+        <rect x="26" y="36" width="77" height="22" fill="#34d399"></rect>
+        <rect x="54" y="36" width="21" height="61" fill="#34d399"></rect>
+      </svg>
+      TokenSaver
+    </span>
+    <nav>
+      <a href="#features">功能</a>
+      <a href="#types">处理方式</a>
+      <a href="#pricing">定价</a>
+      <a href="privacy.html">隐私政策</a>
+      <a href="#support">支持</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>粘贴之前，<br>先把 Token <em>省下来</em></h1>
+    <p class="lead">
+      你每次从 Notion、Word 或网页复制文字再粘进 AI 对话时，粘进去的不只是正文：还有行尾空格、连续空行、
+      装饰性分隔线（====）、从 Word 带来的零宽字符，以及表格与 JSON 里的冗余行——这些都会真实消耗 Token。
+      TokenSaver 会在粘贴时按内容类型做「形态转换」，再放行进输入框，并即时告诉你这次省下了多少 Token。
+    </p>
+    <div class="cta">
+      <!-- 上线前把 href 替换为个人主体新加载项的真实商店链接（原企业账号草稿 Store ID 0RDCKGPLVF2Q 不可用） -->
+      <a class="btn btn-green" href="#pricing">了解定价与试用</a>
+      <a class="btn btn-ghost" href="#features">查看功能与处理方式</a>
+    </div>
+    <p class="tagline">Microsoft Edge 加载项 · 一次性买断（非订阅）· 免费功能本地处理，零外部请求</p>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <h2>它解决什么问题</h2>
+    <p class="sub">不是摘要，而是「形态转换」——不删信息，只删格式噪音。</p>
+    <div class="grid g3">
+      <div class="card">
+        <h3>成本</h3>
+        <p>重复表格行、JSON 冗余字段、时间戳与系统横幅都在按 Token 计费。折叠掉它们，同样的信息�N����少的下下文。</p>
+      </div>
+      <div class="card">
+        <h3>噪音</h3>
+        <p>零宽字符、连续空行、装饰分隔线、网页导航与广告短行，会挤占模型注意力。清掉后，譣文更容易被读懂。</p>
+      </div>
+      <div class="card">
+        <h3>可控</h3>
+        <p>免费功能的清理与统计全部在本机完成；云端能力只在你自己点击时发起，弹窗内可随时开关。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="types">
+  <div class="wrap">
+    <h2>6 类内容，对应不同的处理方式</h2>
+    <p class="sub">粘贴内容超过约 800 tokens 或 3000 字符时自动触发；先识别内容类垊ϼ�再选择处理策略。</p>
+    <div class="card" style="padding:6px 4px">
+      <table>
+        <thead>
+          <tr><th style="width:150px">内容类型</th><th style="width:110px">归属</th><th>处理方式</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>表格</td><td><span class="badge free">免费</span></td><td>保留表头 + 前 10 行 + 折叠提示 + 尾 3 行</td></tr>
+          <tr><td>JSON</td><td><span class="badge free">免费</span></td><td>超过 8 条的数组折叠丶「前 10 + 后 3 + 字段说明」</td></tr>
+          <tr><td>键值对</td><td><span class="badge free">免费</span></td><td>重复键去重，保留最新值</td></tr>
+          <tr><td>散文</td><td><span class="badge free">免费</span></td><td>按标志词把句首分点，不删任何字</td></tr>
+          <tr><td>聊天记录</td><td><span class="badge pro">Pro</span></td><td>删除时间戳与系统横幅（禁言 / 撤回 / 入群），统一为「名字: 内容」</td></tr>
+          <tr><td>网页正文</td><td><span class="badge pro">Pro</span></td><td>删除导航、广告等噪音短行</td></tr>
+          <tr><td>散文深度压缩</td><td><span class="badge pro">Pro</span></td><td>AI 深度压缩：服务端 LLM 语义改写，保留信息、压缩语言冗余（需激活后使用）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:30px">实测省幅（规则引擎实测，非估算）</h3>
+    <div class="grid g4" style="margin-top:12px">
+      <div class="card"><div class="num">≈96%</div><div class="numlbl">大 JSON（500 条）</div></div>
+      <div class="card"><div class="num">≈90%</div><div class="numlbl">大表格（200 行）</div></div>
+      <div class="card"><div class="num">45–49%</div><div class="numlbl">聊天记录</div></div>
+      <div class="card"><div class="num">10–30%</div><div class="numlbl">网页正文</div></div>
+      <div class="card"><div class="num y">50–70%</div><div class="numlbl">AI 深度压缩（云端）</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="sites">
+  <div class="wrap">
+    <h2>支持站点</h2>
+    <p class="sub">主流 AI 对话站点开箱即用（与扩展包内 <code>content_scripts</code> 配置一致，共 17 条站点匹配规则）：</p>
+    <p style="color:var(--dim);font-size:14.5px">
+      ChatGPT（chatgpt.com / chat.openai.com）、Claude、DeepSeek、Gemini、Copilot、豆包、通义千问（阿里通义）、
+      Kimi（月之暗面）、文心一言、讯飞星火、腾讯元宝、智谱清言、Perplexity、Poe。
+    </p>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2>定价：一次性买断，没有订阅</h2>
+    <p class="sub">三档解锁同一套 Pro 功能，差异仅在可뼙定设备数量。</p>
+    <div class="card" style="padding:6px 4px">
+      <table>
+        <thead><tr><th>档位</th><th style="width:110px">价格</th><th>解锁范围</th></tr></thead>
+        <tbody>
+          <tr><td>轻量版</td><td class="price">¥5</td><td>Pro 功能买断，可绑定 1 台设备</td></tr>
+          <tr><td>标准版 · 推荐</td><td class="price">¥10</td><td>Pro 功能买断，可绑定 3 台设备</td></tr>
+          <tr><td>全量版</td><td class="price">¥20</td><td>Pro 功能买断，可绑定 5 台设备</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3" style="margin-top:18px">
+      <div class="card">
+        <h3>Pro 解锁什么</h3>
+        <p><b style="color:#e2e8f0">本地 Pro 功能：</b>聊天记录 / 网页正文的完整形态转换。<br>
+           <b style="color:#e2e8f0">云端 Pro 功能：</b>AI 深度压缩（服务端 LLM 语义改写，实测省 50–70%）。</p>
+      </div>
+      <div class="card">
+        <h3>免费试用</h3>
+        <p>首次使用 Pro 功能起自动开启 <b style="color:#e2e8f0">7 天试用</b>，解锁本地 Pro 功能；AI 深度压缩等云端能力需激活后住用。
+           试用到期后仅关闭 Pro 功能，免费功能不受影响，已生成的本地数据不会删除。</p>
+      </div>
+      <div class="card">
+        <h3>购买与激活</h3>
+        <p>入口在扩展弹窗内的「升级 Pro」按钮，点击后跳转第三方支付页面（面包多）完成付款；付款成功后获得激活码，在扩展内输入即可激活并绑定当前设备。</p>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:18px">
+      <b>支付与退款：</b>价格含税，区间 ¥5–¥20，最终价以购买页为准。付款由第三方搫付款服务商（面包多）处理。<b>微轫不参与收款</b>。
+      未激活的激活码支持 <b>7 天内</b>联系 gupeng@langovalve.cn 退款；已汀活的激活码不支持退款。</p>
+      Pro 权益仅为扩展内的软件功能使用权，<b>不可兑换为任何法定货币、虚拟货币或实物</b>。
+    </div>
+  </div>
+</section>
+
+<section id="subject">
+  <div class="wrap">
+    <h2>主体与销售说明</h2>
+    <p class="sub">本节说明「谁在开发运营」与「谁在收款开票」，两者不是同一个体。</p>
+    <div class="grid g3">
+      <div class="card">
+        <h3>开发 / 发布 / 运营主体</h3>
+        <p><b style="color:#e2e8f0">个人开发者（Individual）</b>。本扩展由个人开发者独立开发、发布与运营，未以公司名义发布。</p>
+      </div>
+      <div class="card">
+        <h3>收款与开票主体</h3>
+        <p>Pro 授权（激活码）的销售收款与发票开具由 <b style="color:#e2e8f0">朗柏阀业（温州）有限公司</b>（统一社会信用代码 91330324MAKKPQMT6A）提供，该公司仅承担收款与开票，不参与扩展的开发与运营，也不接触扩展内处理的用户文本数据。</p>
+      </div>
+      <div class="card">
+        <h3>联系方式</h3>
+        <p>gupeng@langovalve.cn —— 开发者个人日常不用的联系邮箱，其域名归��林槏陈业（橾州）有限公司，<b style="color:#e2e8f0">仅为通信地址</b>，不代表该公司为扩展的发布或运营主体。收欠、开票与退款申求均可通过该邮箱提出。
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy" class="privacy">
+  <div class="wrap">
+    <h2>隐私政策</h2>
+    <p class="sub">生效日期：2026-09-28 ｜ 适用于 TokenSaver 浏览器扩展（Edge / Chrome）与其介绍页面</p>
+    <p style="color:var(--dim);font-size:14.5px">完整隐私政策已单狐成页面，可直接作为商店的隐私政策蓾接；<a href="privacy.html">查看 TokenSaver 隐私政策全文</a>。</p>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card">
+        <h3>免费功能：全本地</h3>
+        <p>文本清理与 Token 统计全部在浏览器本地完成，不上传、不存储到任何服务器。</p>
+      </div>
+      <div class="card">
+        <h3>云端能力：你点才发</h3>
+        <p>Pro“AI 深度压缩」仅在你主动点击时，当前文本转发至 AI 服务做语义改写；结果不落库、不用于模型训练。</p>
+      </div>
+      <div class="card">
+        <h3>不收集、不售卖</h3>
+        <p>不收集浏览历史，不注入广告，不出售任何数据；激活仅上传激活码与设备标识。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="support">
+  <div class="wrap">
+    <h2>支持与常见问题</h2>
+    <p class="sub">遇到问题或有退款、开票需求，请邮件联系：<a href="mailto:gupeng@langbovalve.cn">gupeng@langbovalve.cn</a></p>
+
+    <details>
+      <summary>购买后怎么激活？</summary>
+      <p>付款成功后你会获得一枚激活码（形如 TS-XXXX-XXXX）。打开扩展弹窗 →「升级 Pro」→ 输入激活码 → 激活，即绑定当前设备。设置页中可查看与修改激活服务器地址（默认指向官方服务器，通常无需修改）。</p>
+    </details>
+    <details>
+      <summary>换电脑怎么办？</summary>
+      <p>可绑定设备数由你购买的档位决定（1 / 3 / 5 台）。在设备数量范围内，于新设备重新输入同一激活码即可激活。</p>
+    </details>
+    <details>
+      <summary>免费版能用什么？</summary>
+      <p>免费版长期可用，且无广告：表格、JSON、键值对、要点化压缩等本地形态转换与 Token 统计都可用。Pro 额外解锁聊天记录 / 网页正文的完整形态转换（本地）与 AI 深度压缩（云端）。</p>
+    </details>
+    <details>
+      <summary>AI 深度压缩会把我的文本存下来吗？</summary>
+      <p>不会。该文本仅在服务端完成本次语义改写即返回，不落庐、不用于模型训练；免费功能的处理与统计则完全在本机完成。</p>
+    </details>
+    <details>
+      <summary>支持哪些浏览器？</summary>
+      <p>当前以 Microsoft Edge 加载项形式发布（基于 Manifest V3），Edge 与 Chrome 系内核浏览器均可加载使用。</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>TokenSaver · 对应扩展版本 v0.8.6（SHA256 944095A3…9A3E）｜ 页面更新日期：2026-09-28</p>
+    <p style="margin-top:6px">开发 / 发布 / 运营：个人开发者 ｜ 销售收款与开票：朗柏阀业（温州）有限公司（91330324MAKKPQMT6A）</p>
+    <!-- ICP：如需在本页展示处案号，请在此处补充，例如：<p>浙ICP备XXXXXXXX号</p> -->
+    <p style="margin-top:10px">页面内容由 AI 辅助生成，仅供参考；功能与购买条款以扩展实际行为及购买页为准。</p>
+  </div>
+</footer>
+
+</body>
+</html>
